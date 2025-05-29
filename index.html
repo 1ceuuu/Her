@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Little Something For You</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+    <style>
+        /* Custom styles */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: lab(78.36% 36.44 -18.56); /* Lavender Blush */
+            color: #4A5568; /* Cool Gray 700 */
+            transition: background-color 0.5s ease;
+            min-height: 100vh;
+            display: flex; 
+            flex-direction: column; 
+            margin: 0; 
+        }
+        .header-font {
+            font-family: 'Dancing Script', cursive;
+        }
+        .card {
+            background-color: white;
+            border-radius: 1rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease-in-out, opacity 0.5s ease-in-out;
+            opacity: 1;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        .button-custom {
+            background-color: #F472B6; /* Pink 400 */
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin: 0.5rem; 
+        }
+        .button-custom:hover {
+            background-color: #EC4899; /* Pink 500 */
+            transform: scale(1.05);
+        }
+        .gallery-img {
+            border-radius: 0.75rem;
+            object-fit: cover;
+            aspect-ratio: 1 / 1;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 50;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .modal-content {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            text-align: center;
+            max-width: 90%;
+            width: 400px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+        .modal-close-btn {
+            margin-top: 1.5rem;
+            background-color: #9CA3AF; /* Gray 400 */
+        }
+        .modal-close-btn:hover {
+            background-color: #6B7280; /* Gray 500 */
+        }
+
+        /* Styles for different views and transitions */
+        .view-container { 
+            min-height: 100vh; 
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 1rem;
+            opacity: 0; 
+            transition: opacity 0.5s ease-in-out, visibility 0s linear 0.5s; 
+            width: 100%;
+            position: fixed; 
+            top: 0;
+            left: 0;
+            visibility: hidden; 
+        }
+        .view-container.visible-content { 
+            opacity: 1;
+            visibility: visible;
+            transition: opacity 0.5s ease-in-out, visibility 0s linear 0s;
+        }
+        .main-content-wrapper {
+            opacity: 0;
+            visibility: hidden; 
+            transition: opacity 0.8s ease-in 0.2s, visibility 0s linear 0.8s; 
+            width: 100%;
+            max-width: 48rem; 
+            margin-left: auto;
+            margin-right: auto;
+            padding: 2rem 1rem; 
+            position: relative; 
+            z-index: 10; 
+        }
+         .main-content-wrapper.visible-content { 
+            opacity: 1;
+            visibility: visible;
+            transition: opacity 0.8s ease-in 0.2s, visibility 0s linear 0s;
+        }
+        .view-image, .view-gif { /* Common styling for images/GIFs in views */
+            max-width: 80%;
+            width: 300px; 
+            height: auto;
+            max-height: 40vh; 
+            border-radius: 1rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            margin-bottom: 1rem; 
+        }
+        .question-text { 
+             font-family: 'Dancing Script', cursive;
+             font-size: 2.25rem; /* text-4xl */
+             line-height: 2.5rem; /* leading-10 */
+             margin-bottom: 1rem;
+        }
+        .statement-text { 
+            font-family: 'Dancing Script', cursive;
+            font-size: 2rem; /* text-3xl */
+            line-height: 2.25rem; /* leading-9 */
+            margin-bottom: 1.5rem;
+        }
+        .playful-text { 
+            font-family: 'Inter', sans-serif;
+            font-weight: 600; 
+            font-size: 1.25rem; /* text-xl */
+            line-height: 1.75rem; 
+            color: #7C3AED; /* violet-600 */
+            margin-bottom: 1.5rem;
+            padding: 0 1rem;
+        }
+        .sad-playful-text { 
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            font-size: 1.25rem; /* text-xl */
+            color: #6B7280; /* gray-500 */
+            margin-bottom: 1.5rem;
+            padding: 0 1rem;
+        }
+        .aw-gege-text {
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            font-size: 1.25rem; /* text-xl */
+            color: #3B82F6; /* blue-500 */
+            margin-bottom: 1.5rem;
+            padding: 0 1rem;
+        }
+        .mhmmm-text {
+            font-family: 'Dancing Script', cursive;
+            font-size: 3rem; /* text-5xl */
+            color: #4B5563; /* gray-600 */
+            margin-bottom: 1.5rem;
+        }
+        .final-message-text {
+            font-family: 'Inter', sans-serif;
+            font-size: 1.125rem; /* text-lg */
+            line-height: 1.75rem; 
+            color: #374151; /* text-gray-700 */
+            margin-bottom: 2rem; 
+            padding: 0 1rem; 
+        }
+        .response-text { 
+            font-family: 'Inter', sans-serif;
+            font-size: 1.25rem; /* text-xl */
+            color: #374151; /* Gray-700 */
+            margin-bottom: 1.5rem;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div id="initialView" class="view-container">
+        <img src="https://i.pinimg.com/736x/8e/95/32/8e953260a5ee9a4b55df55a0cb730d21.jpg" alt="A special photo" class="view-image">
+        <h2 class="header-font text-5xl sm:text-6xl text-pink-600 mb-6">Hi baby</h2>
+        <button id="helloButton" class="button-custom text-xl px-8 py-3">hello</button>
+    </div>
+
+    <div id="didYouEatView" class="view-container">
+        <img src="https://i.pinimg.com/originals/d4/5b/b1/d45bb1a344997f044f45b7fa541ab847.gif" alt="Thinking of you" class="view-gif">
+        <h2 class="header-font text-4xl sm:text-5xl text-pink-600 mb-8">Did u eat na?</h2>
+        <div class="flex flex-col sm:flex-row">
+            <button id="yesButton" class="button-custom text-lg px-6 py-2">Yes!</button>
+            <button id="noButton" class="button-custom text-lg px-6 py-2">Not yet</button>
+        </div>
+    </div>
+
+    <div id="yesResponseView" class="view-container">
+        <img src="https://i.pinimg.com/originals/6d/41/6f/6d416fcc4c05850677631f397e206f46.gif" alt="Happy GIF" class="view-gif">
+        <p class="header-font text-4xl sm:text-5xl text-purple-600 mb-6">Yey, good girl!</p>
+        <button id="yesContinueButton" class="button-custom text-lg px-6 py-2 bg-purple-500 hover:bg-purple-600">Aww, thanks!</button>
+    </div>
+
+    <div id="noResponseView" class="view-container">
+        <img src="https://i.pinimg.com/736x/a5/3e/3b/a53e3b77c34dc7f0bc5c7c70816acdec.jpg" alt="Concerned GIF" class="view-image">
+        <p class="header-font text-3xl sm:text-4xl text-red-600 mb-6">Ngano wa paman? Kaon na oy!</p>
+        <button id="noContinueButton" class="button-custom text-lg px-6 py-2 bg-red-500 hover:bg-red-600">Okay, okay!</button>
+    </div>
+
+    <div id="missYouView" class="view-container">
+        <img src="https://i.pinimg.com/736x/3b/6b/14/3b6b1472579e2be21e95c84c0b604abf.jpg" alt="Miss you animation" class="view-gif">
+        <h2 class="header-font text-4xl sm:text-5xl text-blue-600 mb-8">Do you miss me?</h2>
+        <div class="flex flex-col sm:flex-row">
+            <button id="missYesButton" class="button-custom text-lg px-6 py-2 bg-blue-500 hover:bg-blue-600">Yes I miss you</button>
+            <button id="missNoButton" class="button-custom text-lg px-6 py-2 bg-gray-400 hover:bg-gray-500">No</button>
+        </div>
+    </div>
+
+    <div id="missNoResponseView" class="view-container">
+        <img src="https://i.pinimg.com/736x/e9/38/f0/e938f00f2f308ca3abd144929c9ea13e.jpg" alt="Sad playful GIF" class="view-gif">
+        <p class="sad-playful-text">Damn, ako ra diay gimingaw nimo</p>
+        <div class="flex flex-col sm:flex-row">
+            <button id="jkRaOyButton" class="button-custom text-lg px-6 py-2 bg-pink-500 hover:bg-pink-600">jk ra oy</button>
+            <button id="missNoYesDirectButton" class="button-custom text-lg px-6 py-2 bg-gray-400 hover:bg-gray-500">yes</button> 
+        </div>
+    </div>
+
+    <div id="awGegeView" class="view-container">
+        <img src="https://i.pinimg.com/originals/e8/78/80/e878802dab8a9172420970a64090fdb2.gif" alt="Crying playfully GIF" class="view-gif">
+        <p class="aw-gege-text">Aw gege hilak nlng sa ko huhu</p>
+        <button id="awGegeContinueButton" class="button-custom text-lg px-6 py-2 bg-blue-400 hover:bg-blue-500">Okay...</button>
+    </div>
+
+    <div id="mhmmmView" class="view-container">
+        <img src="https://i.pinimg.com/736x/ac/c1/7b/acc17bf719224e186bd0b819fcb62c9e.jpg" alt="Mhmmm GIF" class="view-gif">
+        <p class="mhmmm-text">Mhmmm</p>
+        <button id="jkRaLagiButton" class="button-custom text-lg px-6 py-2 bg-gray-500 hover:bg-gray-600">JK RA LAGI</button>
+    </div>
+
+    <div id="askAgainMissYouView" class="view-container">
+        <img src="https://i.pinimg.com/736x/e3/a1/18/e3a11860705794fe49f20852b68ec5c1.jpg" alt="Thinking again GIF" class="view-gif">
+        <p class="question-text text-blue-600">Okay ngutana ko balik...</p>
+        <h2 class="header-font text-4xl sm:text-5xl text-blue-600 mb-8">Do you miss me?</h2>
+        <div class="flex flex-col sm:flex-row">
+            <button id="askAgainYesButton" class="button-custom text-lg px-6 py-2 bg-blue-500 hover:bg-blue-600">Yes</button>
+            <button id="askAgainNoButton" class="button-custom text-lg px-6 py-2 bg-gray-400 hover:bg-gray-500">No</button>
+        </div>
+    </div>
+    
+    <div id="howWasYourDayView" class="view-container">
+        <img src="https://i.pinimg.com/originals/5d/73/de/5d73ded0912d02b03bd4d11d0c0419ac.gif" alt="How was your day GIF" class="view-gif">
+        <p class="response-text text-emerald-700">I miss you to babe</p>
+        <h2 class="question-text text-emerald-600">How was your day?</h2>
+        <div class="flex flex-col sm:flex-row">
+            <button id="dayKapoyButton" class="button-custom text-lg px-6 py-2 bg-emerald-500 hover:bg-emerald-600">kapoy</button>
+            <button id="dayOkRaButton" class="button-custom text-lg px-6 py-2 bg-emerald-500 hover:bg-emerald-600">ok ra</button>
+            <button id="dayMingawButton" class="button-custom text-lg px-6 py-2 bg-emerald-500 hover:bg-emerald-600">mingaw ko nimo</button>
+        </div>
+    </div>
+
+    <div id="kapoyResponseView" class="view-container">
+        <img src="https://i.pinimg.com/736x/6e/6c/b0/6e6cb0b4f8ee05d82d12f2787584fdc5.jpg" alt="Resting GIF" class="view-gif">
+        <p class="statement-text text-amber-600">Pahuway na niyaa</p>
+        <button id="kapoyContinueButton" class="button-custom text-lg px-6 py-2 bg-amber-500 hover:bg-amber-600">Yes baby</button>
+    </div>
+
+    <div id="okRaResponseView" class="view-container">
+        <img src="https://i.pinimg.com/736x/71/6f/27/716f27b934395080128ead50ac5d132d.jpg" alt="Curious GIF" class="view-gif">
+        <p class="statement-text text-violet-600">Kbaw ba ka?</p>
+        <button id="okRaContinueButton" class="button-custom text-lg px-6 py-2 bg-violet-500 hover:bg-violet-600">Unsa man?</button>
+    </div>
+
+    <div id="unsaManResponseView" class="view-container">
+        <img src="https://i.pinimg.com/736x/8d/51/da/8d51da70d3e63ad415ebb2f8253af1eb.jpg" alt="Playful tease GIF" class="view-gif">
+        <p class="playful-text">Wa lang mingaw ko nimo AHHAHAHAHA</p>
+        <button id="maoBaButton" class="button-custom text-lg px-6 py-2 bg-violet-500 hover:bg-violet-600">mao ba</button>
+    </div>
+
+    <div id="dayMingawResponseView" class="view-container">
+        <img src="https://i.pinimg.com/736x/ef/60/a9/ef60a98f978eb78d0c5bd02e4ad4c994.jpg" alt="Miss you too GIF" class="view-gif">
+        <p class="statement-text text-pink-600">Yes babe ako pd</p>
+        <button id="dayMingawContinueButton" class="button-custom text-lg px-6 py-2 bg-pink-500 hover:bg-pink-600">MISS U</button>
+    </div>
+
+    <div id="finalMessageView" class="view-container">
+        <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExZWE2cHdlMWxlaTNyMXBxNmQ0Y3hnbnoyN3dvZzU5eHlvNGVvdms3cyZlcD12MV9naWZzX3NlYXJjaCZjdD1n/MDJ9IbxxvDUQM/giphy.gif" alt="Warm message GIF" class="view-gif">
+        <p class="final-message-text text-orange-700">Amping permi babe, pahuway na if kapoy imong adlaw, and yes i miss u and i luv u</p>
+        <button id="tellPolButton" class="button-custom text-lg px-6 py-2 bg-orange-500 hover:bg-orange-600">click to tell Pol u miss him</button>
+    </div>
+
+
+    <div id="mainContentWrapper" class="main-content-wrapper">
+        <header class="text-center mb-12 mt-8 sm:mt-12">
+            <h1 class="header-font text-5xl sm:text-6xl md:text-7xl text-pink-500 mb-4">
+                For My Dearest <span id="herName">[Her Name]</span>
+            </h1>
+            <p class="text-lg sm:text-xl text-gray-600">Just a little something to make you smile.</p>
+        </header>
+
+        <main class="space-y-12">
+            <section id="message" class="card p-6 sm:p-8">
+                <h2 class="text-3xl font-semibold text-pink-600 mb-4">A Special Note</h2>
+                <p class="text-gray-700 leading-relaxed text-lg">
+                    Thinking of you always brightens my day. I wanted to create this little corner of the internet just for you, to remind you how special you are. Every moment with you is a treasure, and I cherish all our memories together and the ones we're yet to make!
+                </p>
+            </section>
+
+            <section id="reasons" class="card p-6 sm:p-8">
+                <h2 class="text-3xl font-semibold text-pink-600 mb-6 text-center">A Few Reasons Why You're Amazing</h2>
+                <ul class="list-none space-y-3 text-lg text-gray-700">
+                    <li class="flex items-center p-3 bg-pink-50 rounded-lg shadow-sm">
+                        <svg class="w-6 h-6 text-pink-500 mr-3 shrink-0" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"></path></svg>
+                        Your incredible kindness and how you care for others.
+                    </li>
+                    <li class="flex items-center p-3 bg-pink-50 rounded-lg shadow-sm">
+                        <svg class="w-6 h-6 text-pink-500 mr-3 shrink-0" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"></path></svg>
+                        The way your smile lights up the room.
+                    </li>
+                    <li class="flex items-center p-3 bg-pink-50 rounded-lg shadow-sm">
+                        <svg class="w-6 h-6 text-pink-500 mr-3 shrink-0" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"></path></svg>
+                        Your amazing sense of humor that always makes me laugh.
+                    </li>
+                </ul>
+            </section>
+
+            <section id="gallery" class="card p-6 sm:p-8">
+                <h2 class="text-3xl font-semibold text-pink-600 mb-6 text-center">A Few of Our Moments</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
+                    <img src="https://placehold.co/300x300/FBCFE8/C2185B?text=Our+First+Date" alt="Placeholder image of a special moment" class="gallery-img w-full">
+                    <img src="https://placehold.co/300x300/FCE7F3/C2185B?text=Funny+Memory" alt="Placeholder image of a fun time" class="gallery-img w-full">
+                    <img src="https://placehold.co/300x300/FBCFE8/C2185B?text=Beautiful+Smile" alt="Placeholder image, perhaps a nice photo of her" class="gallery-img w-full">
+                </div>
+                <p class="text-center text-gray-600 mt-6 text-sm">
+                    (Psst! You can replace these with your favorite photos together!)
+                </p>
+            </section>
+
+            <section id="compliment" class="card p-6 sm:p-8 text-center">
+                <h2 class="text-3xl font-semibold text-pink-600 mb-4">Click for a little surprise!</h2>
+                <button id="complimentButton" class="button-custom">Show me!</button>
+            </section>
+        </main>
+
+        <footer class="text-center mt-12 py-8 border-t border-pink-200">
+            <p class="text-gray-600">Made with <span class="text-pink-500">&hearts;</span> by <span id="yourName">[Your Name/Nickname]</span></p>
+        </footer>
+    </div>
+
+    <div id="messageModal" class="modal-overlay">
+        <div class="modal-content">
+            <p id="modalText" class="text-xl text-gray-700"></p>
+            <button id="modalCloseButton" class="button-custom modal-close-btn">Close</button>
+        </div>
+    </div>
+
+    <script>
+        // Get DOM elements
+        const initialView = document.getElementById('initialView');
+        const helloButton = document.getElementById('helloButton');
+        
+        const didYouEatView = document.getElementById('didYouEatView');
+        const yesButton = document.getElementById('yesButton');
+        const noButton = document.getElementById('noButton');
+
+        const yesResponseView = document.getElementById('yesResponseView');
+        const yesContinueButton = document.getElementById('yesContinueButton');
+
+        const noResponseView = document.getElementById('noResponseView');
+        const noContinueButton = document.getElementById('noContinueButton');
+
+        const missYouView = document.getElementById('missYouView');
+        const missYesButton = document.getElementById('missYesButton');
+        const missNoButton = document.getElementById('missNoButton');
+
+        const missNoResponseView = document.getElementById('missNoResponseView'); 
+        const jkRaOyButton = document.getElementById('jkRaOyButton'); 
+        const missNoYesDirectButton = document.getElementById('missNoYesDirectButton'); 
+
+        const awGegeView = document.getElementById('awGegeView'); 
+        const awGegeContinueButton = document.getElementById('awGegeContinueButton'); 
+
+        const mhmmmView = document.getElementById('mhmmmView'); 
+        const jkRaLagiButton = document.getElementById('jkRaLagiButton'); 
+
+        const askAgainMissYouView = document.getElementById('askAgainMissYouView'); 
+        const askAgainYesButton = document.getElementById('askAgainYesButton'); 
+        const askAgainNoButton = document.getElementById('askAgainNoButton'); 
+
+
+        const howWasYourDayView = document.getElementById('howWasYourDayView');
+        const dayKapoyButton = document.getElementById('dayKapoyButton');
+        const dayOkRaButton = document.getElementById('dayOkRaButton');
+        const dayMingawButton = document.getElementById('dayMingawButton');
+
+        const kapoyResponseView = document.getElementById('kapoyResponseView');
+        const kapoyContinueButton = document.getElementById('kapoyContinueButton');
+
+        const okRaResponseView = document.getElementById('okRaResponseView');
+        const okRaContinueButton = document.getElementById('okRaContinueButton');
+
+        const unsaManResponseView = document.getElementById('unsaManResponseView'); 
+        const maoBaButton = document.getElementById('maoBaButton'); 
+
+        const dayMingawResponseView = document.getElementById('dayMingawResponseView');
+        const dayMingawContinueButton = document.getElementById('dayMingawContinueButton');
+
+        const finalMessageView = document.getElementById('finalMessageView');
+        const tellPolButton = document.getElementById('tellPolButton');
+        
+        const mainContentWrapper = document.getElementById('mainContentWrapper');
+        
+        const complimentButton = document.getElementById('complimentButton');
+        const messageModal = document.getElementById('messageModal');
+        const modalText = document.getElementById('modalText');
+        const modalCloseButton = document.getElementById('modalCloseButton');
+
+        // Function to transition between views
+        function transitionView(hideView, showView) {
+            hideView.classList.remove('visible-content'); 
+            
+            setTimeout(() => {
+                hideView.style.display = 'none'; 
+
+                showView.style.display = 'flex'; 
+                if (showView === mainContentWrapper) {
+                    showView.style.display = 'block'; 
+                }
+                void showView.offsetWidth; 
+                showView.classList.add('visible-content');
+            }, 500); 
+        }
+
+        // Event listener for the "hello" button on initialView
+        helloButton.addEventListener('click', () => {
+            transitionView(initialView, didYouEatView);
+        });
+
+        // Event listeners for "yes" and "no" buttons on didYouEatView
+        yesButton.addEventListener('click', () => {
+            transitionView(didYouEatView, yesResponseView);
+        });
+        noButton.addEventListener('click', () => {
+            transitionView(didYouEatView, noResponseView);
+        });
+
+        // Event listeners for continue buttons on "eat" response views
+        yesContinueButton.addEventListener('click', () => {
+            transitionView(yesResponseView, missYouView); 
+        });
+        noContinueButton.addEventListener('click', () => {
+            transitionView(noResponseView, missYouView); 
+        });
+
+        // Event listeners for "miss you" view buttons
+        missYesButton.addEventListener('click', () => {
+            transitionView(missYouView, howWasYourDayView); 
+        });
+        missNoButton.addEventListener('click', () => { 
+            transitionView(missYouView, missNoResponseView); 
+        });
+
+        // Event listeners for buttons on "missNoResponseView"
+        jkRaOyButton.addEventListener('click', () => { 
+            transitionView(missNoResponseView, mhmmmView); 
+        });
+        missNoYesDirectButton.addEventListener('click', () => { 
+             transitionView(missNoResponseView, awGegeView); 
+        });
+        
+        // Event listener for "Aw Gege" view
+        awGegeContinueButton.addEventListener('click', () => {
+            transitionView(awGegeView, finalMessageView);
+        });
+
+        // Event listeners for "Mhmmm" view
+        jkRaLagiButton.addEventListener('click', () => {
+            transitionView(mhmmmView, askAgainMissYouView);
+        });
+
+        // Event listeners for "Ask Again Miss You" view
+        askAgainYesButton.addEventListener('click', () => {
+            transitionView(askAgainMissYouView, howWasYourDayView); 
+        });
+        askAgainNoButton.addEventListener('click', () => {
+            transitionView(askAgainMissYouView, awGegeView); // Changed to go to awGegeView
+        });
+
+
+        // Event listeners for "how was your day" view buttons
+        dayKapoyButton.addEventListener('click', () => {
+            transitionView(howWasYourDayView, kapoyResponseView);
+        });
+        dayOkRaButton.addEventListener('click', () => {
+            transitionView(howWasYourDayView, okRaResponseView);
+        });
+        dayMingawButton.addEventListener('click', () => {
+            transitionView(howWasYourDayView, dayMingawResponseView);
+        });
+
+        // Event listeners for the response views after "how was your day"
+        kapoyContinueButton.addEventListener('click', () => {
+            transitionView(kapoyResponseView, finalMessageView); 
+        });
+        okRaContinueButton.addEventListener('click', () => { 
+            transitionView(okRaResponseView, unsaManResponseView); 
+        });
+        maoBaButton.addEventListener('click', () => { 
+            transitionView(unsaManResponseView, finalMessageView); 
+        });
+        dayMingawContinueButton.addEventListener('click', () => {
+            transitionView(dayMingawResponseView, finalMessageView); 
+        });
+
+        // Event listener for the "tell Pol" button on the final message view
+        tellPolButton.addEventListener('click', () => {
+            transitionView(finalMessageView, mainContentWrapper);
+        });
+
+
+        // Compliment Button Logic
+        const compliments = [
+            "You have the most beautiful smile!", "You're even more amazing than I can put into words.",
+            "Spending time with you is my favorite thing to do.", "You make everything better just by being you.",
+            "I'm so lucky to have you in my life.", "You're incredibly smart and witty!",
+            "Your laugh is contagious and I love it!", "You inspire me to be a better person.",
+            "Just thinking about you makes me happy.", "You are truly one of a kind."
+        ];
+
+        complimentButton.addEventListener('click', () => {
+            const randomIndex = Math.floor(Math.random() * compliments.length);
+            modalText.textContent = compliments[randomIndex];
+            messageModal.classList.add('active');
+        });
+
+        modalCloseButton.addEventListener('click', () => {
+            messageModal.classList.remove('active');
+        });
+
+        messageModal.addEventListener('click', (event) => {
+            if (event.target === messageModal) {
+                messageModal.classList.remove('active');
+            }
+        });
+
+        window.onload = () => {
+            console.log("Remember to edit '[Her Name]' and '[Your Name/Nickname]' directly in the HTML.");
+            console.log("Update placeholder images/GIFs in all views with your actual URLs.");
+            
+            const allViews = [
+                initialView, didYouEatView, yesResponseView, noResponseView, 
+                missYouView, missNoResponseView, awGegeView, mhmmmView, askAgainMissYouView, 
+                howWasYourDayView, kapoyResponseView, okRaResponseView, 
+                unsaManResponseView, dayMingawResponseView, finalMessageView, mainContentWrapper
+            ];
+            allViews.forEach(view => {
+                if (view) { 
+                    view.style.display = 'none'; 
+                    view.classList.remove('visible-content');
+                }
+            });
+            
+            if(initialView) {
+                initialView.style.display = 'flex'; 
+                void initialView.offsetWidth;
+                initialView.classList.add('visible-content');
+            }
+
+            if(mainContentWrapper) {
+                mainContentWrapper.style.display = 'block'; 
+                mainContentWrapper.classList.remove('visible-content');
+                mainContentWrapper.style.visibility = 'hidden'; 
+            }
+        };
+    </script>
+
+</body>
+</html>
