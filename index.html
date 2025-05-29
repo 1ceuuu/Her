@@ -10,7 +10,7 @@
         /* Custom styles */
         body {
             font-family: 'Inter', sans-serif;
-            background-color: hsl(318, 63%, 75%); /* Lavender Blush */
+            background-color: hsl(314, 60%, 74%); /* Lavender Blush */
             color: #4A5568; /* Cool Gray 700 */
             transition: background-color 0.5s ease;
             min-height: 100vh;
@@ -111,8 +111,7 @@
             visibility: visible;
             transition: opacity 0.5s ease-in-out, visibility 0s linear 0s;
         }
-        /* Main content wrapper might become unused if new final page is the true end */
-        .main-content-wrapper {
+        .main-content-wrapper { /* May become unused */
             opacity: 0;
             visibility: hidden; 
             transition: opacity 0.8s ease-in 0.2s, visibility 0s linear 0.8s; 
@@ -138,11 +137,11 @@
             box-shadow: 0 10px 25px rgba(0,0,0,0.2);
             margin-bottom: 1rem; 
         }
-        .final-picture-page-image { /* For the new final page image */
+        .final-picture-page-image { 
             max-width: 90%;
-            max-height: 70vh; /* Allow it to be a bit larger */
-            width: auto; /* Maintain aspect ratio */
-            height: auto; /* Maintain aspect ratio */
+            max-height: 70vh; 
+            width: auto; 
+            height: auto; 
             border-radius: 1rem;
             box-shadow: 0 10px 25px rgba(0,0,0,0.2);
             margin-bottom: 1.5rem;
@@ -210,10 +209,10 @@
             color: #374151; 
             margin-bottom: 1.5rem;
         }
-        .loading-animation { /* Style for the loading dots */
-            font-size: 1.5rem; /* text-2xl */
-            color: #6b7280; /* text-gray-500 */
-            margin-top: 1rem; /* mt-4 */
+        .loading-animation { 
+            font-size: 1.5rem; 
+            color: #6b7280; 
+            margin-top: 1rem; 
         }
 
     </style>
@@ -434,18 +433,15 @@
         const finalMessageView = document.getElementById('finalMessageView');
         const tellPolButton = document.getElementById('tellPolButton');
 
-        const finalNotificationView = document.getElementById('finalNotificationView'); // New final page
+        const finalNotificationView = document.getElementById('finalNotificationView'); 
         
-        const mainContentWrapper = document.getElementById('mainContentWrapper'); // May become unused
+        const mainContentWrapper = document.getElementById('mainContentWrapper'); 
         
-        // Universal Modal elements
         const complimentButton = document.getElementById('complimentButton'); 
         const messageModal = document.getElementById('messageModal');
         const modalText = document.getElementById('modalText');
         const modalCloseButton = document.getElementById('modalCloseButton');
 
-
-        // Function to transition between views
         function transitionView(hideView, showView) {
             if (hideView) { 
                  hideView.classList.remove('visible-content'); 
@@ -456,9 +452,7 @@
             
             setTimeout(() => {
                 showView.style.display = 'flex'; 
-                // Note: mainContentWrapper is block, but it might not be used anymore.
-                // finalNotificationView is also a full-screen flex container.
-                if (showView === mainContentWrapper) { 
+                if (showView === mainContentWrapper) { // Though mainContentWrapper might be unused now
                     showView.style.display = 'block'; 
                 }
                 void showView.offsetWidth; 
@@ -488,14 +482,13 @@
         maoBaButton.addEventListener('click', () => transitionView(unsaManResponseView, finalMessageView));
         dayMingawContinueButton.addEventListener('click', () => transitionView(dayMingawResponseView, finalMessageView));
 
-        // --- Modal Logic ---
+        // --- Modal Logic & FormSubmit.co Integration ---
         const compliments = [
             "You have the most beautiful smile!", "You're even more amazing than I can put into words.",
-            "Spending time with you is my favorite thing to do.", "You make everything better just by being you.",
-            "I'm so lucky to have you in my life."
+            "Spending time with you is my favorite thing to do."
         ];
 
-        if(complimentButton) { // Check if complimentButton exists (it might be removed if mainContentWrapper is unused)
+        if(complimentButton) {
             complimentButton.addEventListener('click', () => {
                 const randomIndex = Math.floor(Math.random() * compliments.length);
                 modalText.textContent = compliments[randomIndex];
@@ -506,14 +499,44 @@
             });
         }
         
-        tellPolButton.addEventListener('click', () => {
+        tellPolButton.addEventListener('click', async () => {
+            // --- FormSubmit.co Integration ---
+            const formActionURL = 'https://formsubmit.co/parraspaul13874@gmail.com'; // IMPORTANT: Replace YOUR_EMAIL_HERE
+            const formData = new FormData();
+            formData.append('_subject', 'Message from Your Special Website for Her!');
+            formData.append('notification', 'She clicked the button to tell you she misses you (and loves you)!');
+            // To prevent FormSubmit's own thank you page and allow AJAX like behavior:
+            formData.append('_autoresponse', 'Thank you for your message, Pol will be in touch soon!'); // Optional autoresponse to her (if her email was collected, not in this case)
+            // formData.append('_next', window.location.href); // Can be used to redirect, but we handle UI with JS
+            formData.append('_template', 'table'); // Optional: how you receive the email
+            formData.append('_captcha', 'false'); // For testing, consider removing or setting up properly for live
+
+            console.log("Attempting to send notification to Pol via FormSubmit.co...");
+            try {
+                const response = await fetch(formActionURL, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'Accept': 'application/json' // Important for AJAX with FormSubmit.co
+                    }
+                });
+                if (response.ok) {
+                    const result = await response.json(); // FormSubmit returns JSON on success with AJAX
+                    console.log('FormSubmit.co success:', result.message);
+                } else {
+                    console.error('FormSubmit.co submission failed:', response.status, response.statusText);
+                }
+            } catch (error) {
+                console.error('Error sending data to FormSubmit.co:', error);
+            }
+            // --- End FormSubmit.co Integration ---
+
+            // Regardless of submission success, proceed with her UI experience:
             modalText.textContent = "Pol will message you in a few moments";
             modalCloseButton.style.display = 'none'; 
 
             let existingLoader = messageModal.querySelector('.loading-animation');
-            if (existingLoader) {
-                existingLoader.remove();
-            }
+            if (existingLoader) existingLoader.remove();
 
             const loadingAnimation = document.createElement('div');
             loadingAnimation.className = 'loading-animation'; 
@@ -535,7 +558,6 @@
                 messageModal.classList.remove('active');
                 
                 setTimeout(() => {
-                    // Transition to the new final notification view
                     transitionView(finalMessageView, finalNotificationView); 
                 }, 300); 
 
@@ -554,18 +576,21 @@
             }
         });
 
-
         window.onload = () => {
-            console.log("Remember to edit '[Her Name]' and '[Your Name/Nickname]' directly in the HTML (if main content is used).");
-            console.log("Update placeholder images/GIFs in all views with your actual URLs.");
+            console.log("----------------------------------------------------------");
+            console.log("Website for Her - Developer Reminders:");
+            console.log("1. IMPORTANT: Update 'YOUR_EMAIL_HERE' in the script for FormSubmit.co to your actual email.");
+            console.log("2. After deploying, test the 'tell Pol' button. FormSubmit.co will send a confirmation email to activate the form. You MUST click it.");
+            console.log("3. Replace all placeholder images/GIFs with your actual URLs.");
+            console.log("4. Customize all text content for a personal touch.");
+            console.log("----------------------------------------------------------");
             
             const allViews = [
                 initialView, didYouEatView, yesResponseView, noResponseView, 
                 missYouView, missNoResponseView, awGegeView, mhmmmView, askAgainMissYouView, 
                 howWasYourDayView, kapoyResponseView, okRaResponseView, 
                 unsaManResponseView, dayMingawResponseView, finalMessageView, 
-                finalNotificationView, // Added new final view
-                mainContentWrapper // This might become unused
+                finalNotificationView, mainContentWrapper 
             ];
             allViews.forEach(view => {
                 if (view) { 
@@ -580,9 +605,7 @@
                 initialView.classList.add('visible-content');
             }
 
-            // mainContentWrapper is no longer the default end if finalNotificationView is used.
-            // It will only be shown if a path explicitly leads to it.
-            if(mainContentWrapper) {
+            if(mainContentWrapper) { // Will remain hidden unless a path leads to it
                 mainContentWrapper.style.display = 'block'; 
                 mainContentWrapper.classList.remove('visible-content');
                 mainContentWrapper.style.visibility = 'hidden'; 
