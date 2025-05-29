@@ -10,7 +10,7 @@
         /* Custom styles */
         body {
             font-family: 'Inter', sans-serif;
-            background-color: lab(78.36% 36.44 -18.56); /* Lavender Blush */
+            background-color: #FFF0F5; /* Lavender Blush */
             color: #4A5568; /* Cool Gray 700 */
             transition: background-color 0.5s ease;
             min-height: 100vh;
@@ -57,11 +57,11 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0,0,0,0.5);
+            background-color: rgba(0,0,0,0.6); /* Slightly darker overlay */
             display: flex;
             justify-content: center;
             align-items: center;
-            z-index: 50;
+            z-index: 100; /* Ensure modal is on top */
             opacity: 0;
             visibility: hidden;
             transition: opacity 0.3s ease, visibility 0.3s ease;
@@ -78,15 +78,17 @@
             max-width: 90%;
             width: 400px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            transform: scale(0.95);
+            transition: transform 0.3s ease;
         }
-        .modal-close-btn {
+        .modal-overlay.active .modal-content {
+            transform: scale(1);
+        }
+        .modal-close-btn { /* General style for modal button */
             margin-top: 1.5rem;
-            background-color: #9CA3AF; /* Gray 400 */
+            /* background-color will be set by specific modal logic if needed */
         }
-        .modal-close-btn:hover {
-            background-color: #6B7280; /* Gray 500 */
-        }
-
+        
         /* Styles for different views and transitions */
         .view-container { 
             min-height: 100vh; 
@@ -109,6 +111,7 @@
             visibility: visible;
             transition: opacity 0.5s ease-in-out, visibility 0s linear 0s;
         }
+        /* Main content wrapper might become unused if new final page is the true end */
         .main-content-wrapper {
             opacity: 0;
             visibility: hidden; 
@@ -126,7 +129,7 @@
             visibility: visible;
             transition: opacity 0.8s ease-in 0.2s, visibility 0s linear 0s;
         }
-        .view-image, .view-gif { /* Common styling for images/GIFs in views */
+        .view-image, .view-gif { 
             max-width: 80%;
             width: 300px; 
             height: auto;
@@ -135,69 +138,89 @@
             box-shadow: 0 10px 25px rgba(0,0,0,0.2);
             margin-bottom: 1rem; 
         }
+        .final-picture-page-image { /* For the new final page image */
+            max-width: 90%;
+            max-height: 70vh; /* Allow it to be a bit larger */
+            width: auto; /* Maintain aspect ratio */
+            height: auto; /* Maintain aspect ratio */
+            border-radius: 1rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            margin-bottom: 1.5rem;
+        }
+        .final-picture-page-text {
+            font-family: 'Inter', sans-serif;
+            font-size: 1.25rem; /* text-xl */
+            color: #4B5563; /* gray-600 */
+            margin-top: 1rem;
+        }
         .question-text { 
              font-family: 'Dancing Script', cursive;
-             font-size: 2.25rem; /* text-4xl */
-             line-height: 2.5rem; /* leading-10 */
+             font-size: 2.25rem; 
+             line-height: 2.5rem; 
              margin-bottom: 1rem;
         }
         .statement-text { 
             font-family: 'Dancing Script', cursive;
-            font-size: 2rem; /* text-3xl */
-            line-height: 2.25rem; /* leading-9 */
+            font-size: 2rem; 
+            line-height: 2.25rem; 
             margin-bottom: 1.5rem;
         }
         .playful-text { 
             font-family: 'Inter', sans-serif;
             font-weight: 600; 
-            font-size: 1.25rem; /* text-xl */
+            font-size: 1.25rem; 
             line-height: 1.75rem; 
-            color: #7C3AED; /* violet-600 */
+            color: #7C3AED; 
             margin-bottom: 1.5rem;
             padding: 0 1rem;
         }
         .sad-playful-text { 
             font-family: 'Inter', sans-serif;
             font-weight: 600;
-            font-size: 1.25rem; /* text-xl */
-            color: #6B7280; /* gray-500 */
+            font-size: 1.25rem; 
+            color: #6B7280; 
             margin-bottom: 1.5rem;
             padding: 0 1rem;
         }
         .aw-gege-text {
             font-family: 'Inter', sans-serif;
             font-weight: 600;
-            font-size: 1.25rem; /* text-xl */
-            color: #3B82F6; /* blue-500 */
+            font-size: 1.25rem; 
+            color: #3B82F6; 
             margin-bottom: 1.5rem;
             padding: 0 1rem;
         }
         .mhmmm-text {
             font-family: 'Dancing Script', cursive;
-            font-size: 3rem; /* text-5xl */
-            color: #4B5563; /* gray-600 */
+            font-size: 3rem; 
+            color: #4B5563; 
             margin-bottom: 1.5rem;
         }
         .final-message-text {
             font-family: 'Inter', sans-serif;
-            font-size: 1.125rem; /* text-lg */
+            font-size: 1.125rem; 
             line-height: 1.75rem; 
-            color: #374151; /* text-gray-700 */
+            color: #374151; 
             margin-bottom: 2rem; 
             padding: 0 1rem; 
         }
         .response-text { 
             font-family: 'Inter', sans-serif;
-            font-size: 1.25rem; /* text-xl */
-            color: #374151; /* Gray-700 */
+            font-size: 1.25rem; 
+            color: #374151; 
             margin-bottom: 1.5rem;
+        }
+        .loading-animation { /* Style for the loading dots */
+            font-size: 1.5rem; /* text-2xl */
+            color: #6b7280; /* text-gray-500 */
+            margin-top: 1rem; /* mt-4 */
         }
 
     </style>
 </head>
 <body>
 
-    <div id="initialView" class="view-container">
+     <div id="initialView" class="view-container">
         <img src="https://i.pinimg.com/736x/8e/95/32/8e953260a5ee9a4b55df55a0cb730d21.jpg" alt="A special photo" class="view-image">
         <h2 class="header-font text-5xl sm:text-6xl text-pink-600 mb-6">Hi baby</h2>
         <button id="helloButton" class="button-custom text-xl px-8 py-3">hello</button>
@@ -305,6 +328,11 @@
         <button id="tellPolButton" class="button-custom text-lg px-6 py-2 bg-orange-500 hover:bg-orange-600">click to tell Pol u miss him</button>
     </div>
 
+    <div id="finalNotificationView" class="view-container">
+        <img src="https://i.pinimg.com/736x/7e/87/cd/7e87cda57ec57430901b688dfb098d3f.jpg" alt="Final sweet image for her" class="final-picture-page-image">
+        <p class="final-picture-page-text">Pol has been notified, mu chat ra niya toh nimo</p>
+        </div>
+
 
     <div id="mainContentWrapper" class="main-content-wrapper">
         <header class="text-center mb-12 mt-8 sm:mt-12">
@@ -313,7 +341,6 @@
             </h1>
             <p class="text-lg sm:text-xl text-gray-600">Just a little something to make you smile.</p>
         </header>
-
         <main class="space-y-12">
             <section id="message" class="card p-6 sm:p-8">
                 <h2 class="text-3xl font-semibold text-pink-600 mb-4">A Special Note</h2>
@@ -321,7 +348,6 @@
                     Thinking of you always brightens my day. I wanted to create this little corner of the internet just for you, to remind you how special you are. Every moment with you is a treasure, and I cherish all our memories together and the ones we're yet to make!
                 </p>
             </section>
-
             <section id="reasons" class="card p-6 sm:p-8">
                 <h2 class="text-3xl font-semibold text-pink-600 mb-6 text-center">A Few Reasons Why You're Amazing</h2>
                 <ul class="list-none space-y-3 text-lg text-gray-700">
@@ -329,35 +355,19 @@
                         <svg class="w-6 h-6 text-pink-500 mr-3 shrink-0" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"></path></svg>
                         Your incredible kindness and how you care for others.
                     </li>
-                    <li class="flex items-center p-3 bg-pink-50 rounded-lg shadow-sm">
-                        <svg class="w-6 h-6 text-pink-500 mr-3 shrink-0" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"></path></svg>
-                        The way your smile lights up the room.
-                    </li>
-                    <li class="flex items-center p-3 bg-pink-50 rounded-lg shadow-sm">
-                        <svg class="w-6 h-6 text-pink-500 mr-3 shrink-0" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"></path></svg>
-                        Your amazing sense of humor that always makes me laugh.
-                    </li>
                 </ul>
             </section>
-
             <section id="gallery" class="card p-6 sm:p-8">
                 <h2 class="text-3xl font-semibold text-pink-600 mb-6 text-center">A Few of Our Moments</h2>
                 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
                     <img src="https://placehold.co/300x300/FBCFE8/C2185B?text=Our+First+Date" alt="Placeholder image of a special moment" class="gallery-img w-full">
-                    <img src="https://placehold.co/300x300/FCE7F3/C2185B?text=Funny+Memory" alt="Placeholder image of a fun time" class="gallery-img w-full">
-                    <img src="https://placehold.co/300x300/FBCFE8/C2185B?text=Beautiful+Smile" alt="Placeholder image, perhaps a nice photo of her" class="gallery-img w-full">
                 </div>
-                <p class="text-center text-gray-600 mt-6 text-sm">
-                    (Psst! You can replace these with your favorite photos together!)
-                </p>
             </section>
-
             <section id="compliment" class="card p-6 sm:p-8 text-center">
                 <h2 class="text-3xl font-semibold text-pink-600 mb-4">Click for a little surprise!</h2>
                 <button id="complimentButton" class="button-custom">Show me!</button>
             </section>
         </main>
-
         <footer class="text-center mt-12 py-8 border-t border-pink-200">
             <p class="text-gray-600">Made with <span class="text-pink-500">&hearts;</span> by <span id="yourName">[Your Name/Nickname]</span></p>
         </footer>
@@ -367,7 +377,7 @@
         <div class="modal-content">
             <p id="modalText" class="text-xl text-gray-700"></p>
             <button id="modalCloseButton" class="button-custom modal-close-btn">Close</button>
-        </div>
+            </div>
     </div>
 
     <script>
@@ -423,130 +433,113 @@
 
         const finalMessageView = document.getElementById('finalMessageView');
         const tellPolButton = document.getElementById('tellPolButton');
+
+        const finalNotificationView = document.getElementById('finalNotificationView'); // New final page
         
-        const mainContentWrapper = document.getElementById('mainContentWrapper');
+        const mainContentWrapper = document.getElementById('mainContentWrapper'); // May become unused
         
-        const complimentButton = document.getElementById('complimentButton');
+        // Universal Modal elements
+        const complimentButton = document.getElementById('complimentButton'); 
         const messageModal = document.getElementById('messageModal');
         const modalText = document.getElementById('modalText');
         const modalCloseButton = document.getElementById('modalCloseButton');
 
+
         // Function to transition between views
         function transitionView(hideView, showView) {
-            hideView.classList.remove('visible-content'); 
+            if (hideView) { 
+                 hideView.classList.remove('visible-content'); 
+                 setTimeout(() => {
+                    if (hideView) hideView.style.display = 'none'; 
+                 }, 500); 
+            }
             
             setTimeout(() => {
-                hideView.style.display = 'none'; 
-
                 showView.style.display = 'flex'; 
-                if (showView === mainContentWrapper) {
+                // Note: mainContentWrapper is block, but it might not be used anymore.
+                // finalNotificationView is also a full-screen flex container.
+                if (showView === mainContentWrapper) { 
                     showView.style.display = 'block'; 
                 }
                 void showView.offsetWidth; 
                 showView.classList.add('visible-content');
-            }, 500); 
+            }, hideView ? 100 : 0); 
         }
 
-        // Event listener for the "hello" button on initialView
-        helloButton.addEventListener('click', () => {
-            transitionView(initialView, didYouEatView);
-        });
+        // --- Event Listeners for Page Transitions ---
+        helloButton.addEventListener('click', () => transitionView(initialView, didYouEatView));
+        yesButton.addEventListener('click', () => transitionView(didYouEatView, yesResponseView));
+        noButton.addEventListener('click', () => transitionView(didYouEatView, noResponseView));
+        yesContinueButton.addEventListener('click', () => transitionView(yesResponseView, missYouView));
+        noContinueButton.addEventListener('click', () => transitionView(noResponseView, missYouView));
+        missYesButton.addEventListener('click', () => transitionView(missYouView, howWasYourDayView));
+        missNoButton.addEventListener('click', () => transitionView(missYouView, missNoResponseView));
+        jkRaOyButton.addEventListener('click', () => transitionView(missNoResponseView, mhmmmView));
+        missNoYesDirectButton.addEventListener('click', () => transitionView(missNoResponseView, awGegeView));
+        awGegeContinueButton.addEventListener('click', () => transitionView(awGegeView, finalMessageView));
+        jkRaLagiButton.addEventListener('click', () => transitionView(mhmmmView, askAgainMissYouView));
+        askAgainYesButton.addEventListener('click', () => transitionView(askAgainMissYouView, howWasYourDayView));
+        askAgainNoButton.addEventListener('click', () => transitionView(askAgainMissYouView, awGegeView)); 
+        dayKapoyButton.addEventListener('click', () => transitionView(howWasYourDayView, kapoyResponseView));
+        dayOkRaButton.addEventListener('click', () => transitionView(howWasYourDayView, okRaResponseView));
+        dayMingawButton.addEventListener('click', () => transitionView(howWasYourDayView, dayMingawResponseView));
+        kapoyContinueButton.addEventListener('click', () => transitionView(kapoyResponseView, finalMessageView));
+        okRaContinueButton.addEventListener('click', () => transitionView(okRaResponseView, unsaManResponseView));
+        maoBaButton.addEventListener('click', () => transitionView(unsaManResponseView, finalMessageView));
+        dayMingawContinueButton.addEventListener('click', () => transitionView(dayMingawResponseView, finalMessageView));
 
-        // Event listeners for "yes" and "no" buttons on didYouEatView
-        yesButton.addEventListener('click', () => {
-            transitionView(didYouEatView, yesResponseView);
-        });
-        noButton.addEventListener('click', () => {
-            transitionView(didYouEatView, noResponseView);
-        });
-
-        // Event listeners for continue buttons on "eat" response views
-        yesContinueButton.addEventListener('click', () => {
-            transitionView(yesResponseView, missYouView); 
-        });
-        noContinueButton.addEventListener('click', () => {
-            transitionView(noResponseView, missYouView); 
-        });
-
-        // Event listeners for "miss you" view buttons
-        missYesButton.addEventListener('click', () => {
-            transitionView(missYouView, howWasYourDayView); 
-        });
-        missNoButton.addEventListener('click', () => { 
-            transitionView(missYouView, missNoResponseView); 
-        });
-
-        // Event listeners for buttons on "missNoResponseView"
-        jkRaOyButton.addEventListener('click', () => { 
-            transitionView(missNoResponseView, mhmmmView); 
-        });
-        missNoYesDirectButton.addEventListener('click', () => { 
-             transitionView(missNoResponseView, awGegeView); 
-        });
-        
-        // Event listener for "Aw Gege" view
-        awGegeContinueButton.addEventListener('click', () => {
-            transitionView(awGegeView, finalMessageView);
-        });
-
-        // Event listeners for "Mhmmm" view
-        jkRaLagiButton.addEventListener('click', () => {
-            transitionView(mhmmmView, askAgainMissYouView);
-        });
-
-        // Event listeners for "Ask Again Miss You" view
-        askAgainYesButton.addEventListener('click', () => {
-            transitionView(askAgainMissYouView, howWasYourDayView); 
-        });
-        askAgainNoButton.addEventListener('click', () => {
-            transitionView(askAgainMissYouView, awGegeView); // Changed to go to awGegeView
-        });
-
-
-        // Event listeners for "how was your day" view buttons
-        dayKapoyButton.addEventListener('click', () => {
-            transitionView(howWasYourDayView, kapoyResponseView);
-        });
-        dayOkRaButton.addEventListener('click', () => {
-            transitionView(howWasYourDayView, okRaResponseView);
-        });
-        dayMingawButton.addEventListener('click', () => {
-            transitionView(howWasYourDayView, dayMingawResponseView);
-        });
-
-        // Event listeners for the response views after "how was your day"
-        kapoyContinueButton.addEventListener('click', () => {
-            transitionView(kapoyResponseView, finalMessageView); 
-        });
-        okRaContinueButton.addEventListener('click', () => { 
-            transitionView(okRaResponseView, unsaManResponseView); 
-        });
-        maoBaButton.addEventListener('click', () => { 
-            transitionView(unsaManResponseView, finalMessageView); 
-        });
-        dayMingawContinueButton.addEventListener('click', () => {
-            transitionView(dayMingawResponseView, finalMessageView); 
-        });
-
-        // Event listener for the "tell Pol" button on the final message view
-        tellPolButton.addEventListener('click', () => {
-            transitionView(finalMessageView, mainContentWrapper);
-        });
-
-
-        // Compliment Button Logic
+        // --- Modal Logic ---
         const compliments = [
             "You have the most beautiful smile!", "You're even more amazing than I can put into words.",
             "Spending time with you is my favorite thing to do.", "You make everything better just by being you.",
-            "I'm so lucky to have you in my life.", "You're incredibly smart and witty!",
-            "Your laugh is contagious and I love it!", "You inspire me to be a better person.",
-            "Just thinking about you makes me happy.", "You are truly one of a kind."
+            "I'm so lucky to have you in my life."
         ];
 
-        complimentButton.addEventListener('click', () => {
-            const randomIndex = Math.floor(Math.random() * compliments.length);
-            modalText.textContent = compliments[randomIndex];
+        if(complimentButton) { // Check if complimentButton exists (it might be removed if mainContentWrapper is unused)
+            complimentButton.addEventListener('click', () => {
+                const randomIndex = Math.floor(Math.random() * compliments.length);
+                modalText.textContent = compliments[randomIndex];
+                modalCloseButton.textContent = "Aww, thanks! 😊";
+                modalCloseButton.className = "button-custom modal-close-btn bg-pink-500 hover:bg-pink-600"; 
+                modalCloseButton.style.display = 'block'; 
+                messageModal.classList.add('active');
+            });
+        }
+        
+        tellPolButton.addEventListener('click', () => {
+            modalText.textContent = "Pol will message you in a few moments";
+            modalCloseButton.style.display = 'none'; 
+
+            let existingLoader = messageModal.querySelector('.loading-animation');
+            if (existingLoader) {
+                existingLoader.remove();
+            }
+
+            const loadingAnimation = document.createElement('div');
+            loadingAnimation.className = 'loading-animation'; 
+            messageModal.querySelector('.modal-content').appendChild(loadingAnimation);
+            
+            let dots = 0;
+            const loadingInterval = setInterval(() => {
+                dots = (dots % 3) + 1; 
+                loadingAnimation.textContent = ".".repeat(dots);
+            }, 600);
+
             messageModal.classList.add('active');
+            
+            setTimeout(() => {
+                clearInterval(loadingInterval);
+                if (messageModal.querySelector('.loading-animation')) {
+                    messageModal.querySelector('.loading-animation').remove();
+                }
+                messageModal.classList.remove('active');
+                
+                setTimeout(() => {
+                    // Transition to the new final notification view
+                    transitionView(finalMessageView, finalNotificationView); 
+                }, 300); 
+
+            }, 4000); 
         });
 
         modalCloseButton.addEventListener('click', () => {
@@ -554,20 +547,25 @@
         });
 
         messageModal.addEventListener('click', (event) => {
-            if (event.target === messageModal) {
-                messageModal.classList.remove('active');
+            if (event.target === messageModal) { 
+                if (modalCloseButton.style.display !== 'none') {
+                    messageModal.classList.remove('active');
+                }
             }
         });
 
+
         window.onload = () => {
-            console.log("Remember to edit '[Her Name]' and '[Your Name/Nickname]' directly in the HTML.");
+            console.log("Remember to edit '[Her Name]' and '[Your Name/Nickname]' directly in the HTML (if main content is used).");
             console.log("Update placeholder images/GIFs in all views with your actual URLs.");
             
             const allViews = [
                 initialView, didYouEatView, yesResponseView, noResponseView, 
                 missYouView, missNoResponseView, awGegeView, mhmmmView, askAgainMissYouView, 
                 howWasYourDayView, kapoyResponseView, okRaResponseView, 
-                unsaManResponseView, dayMingawResponseView, finalMessageView, mainContentWrapper
+                unsaManResponseView, dayMingawResponseView, finalMessageView, 
+                finalNotificationView, // Added new final view
+                mainContentWrapper // This might become unused
             ];
             allViews.forEach(view => {
                 if (view) { 
@@ -582,6 +580,8 @@
                 initialView.classList.add('visible-content');
             }
 
+            // mainContentWrapper is no longer the default end if finalNotificationView is used.
+            // It will only be shown if a path explicitly leads to it.
             if(mainContentWrapper) {
                 mainContentWrapper.style.display = 'block'; 
                 mainContentWrapper.classList.remove('visible-content');
